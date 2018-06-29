@@ -110,3 +110,21 @@ cross apply
 
 -- 在用户评分过的电影中，有些是打过标签的，有些则没有，比较一下用户在这两类电影评分上的不同  
 -- 实现方式：选出两类电影，求这两类电影的平均分
+select sum(rating)/count(*) as "没有打过标签的平均分"
+from dbo.newratings
+where not EXISTS
+	(
+		select *
+		from dbo.newtags
+		where dbo.newtags.movieId = dbo.newratings.movieId
+	)
+
+select sum(rating)/count(*) as "打过标签的平均分"
+from dbo.newratings
+where  EXISTS
+	(
+		select *
+		from dbo.newtags
+		where dbo.newtags.movieId = dbo.newratings.movieId
+	)
+-- 可以看出打过标签的平均分比较高
