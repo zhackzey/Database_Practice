@@ -1,11 +1,11 @@
 --先创建用户用户关联矩阵表，用三元组存这个矩阵
-/*
+use ml_big;
 create table User_User_Matrix(
 	userid1 int ,
 	userid2 int,
 	relation float
 )
-*/
+
 insert into User_User_Matrix
 select userid1,userid2,relation
 from 
