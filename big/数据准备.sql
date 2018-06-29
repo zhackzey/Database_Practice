@@ -1,20 +1,20 @@
---½«Tags±íÖÐµÄÊ±¼ä´Átimestamp×ªÎªÊý¾Ý¿âÖÐµÄÈÕÆÚ
-
+--ï¿½ï¿½Tagsï¿½ï¿½ï¿½Ðµï¿½Ê±ï¿½ï¿½ï¿½timestamp×ªÎªï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½
+/*
 select userId,movieId,tag,DATEADD(s, timestamp+8*3600, '1970-01-01 00:00:00') time
 into newtags
 from Tags
 
---½«Ratings±íÖÐµÄÊ±¼ä´Átimestamp×ªÎªÊý¾Ý¿âÖÐµÄÈÕÆÚ
+--ï¿½ï¿½Ratingsï¿½ï¿½ï¿½Ðµï¿½Ê±ï¿½ï¿½ï¿½timestamp×ªÎªï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½
 select userId,movieId,rating,DATEADD(s, timestamp+8*3600, '1970-01-01 00:00:00') time
 into newratings
 from Ratings
-
-
---×ªÎªÉÏÓ³ÈÕÆÚ±í
+*/
+--×ªÎªï¿½ï¿½Ó³ï¿½ï¿½ï¿½Ú±ï¿½
 select movieId, substring(title, 0, len(title) - 5) as title, substring(title, PATINDEX('%([0-9][0-9][0-9][0-9])%', title) + 1, 4) as pub_date
-into movie_title_pub_date from Movie;
+into movie_title_pub_date from Movie
+where len(title) > 5;
 
-
+/*
 update Movie set genres = genres +'|';
 with movieId_genres as (
   select
@@ -37,3 +37,4 @@ with movieId_genres as (
 select movieId, substring(genres, sta - lens, lens) as genre into movieId_genre  from movieId_genres
 where sta != 0 order by movieId ;
 
+*/

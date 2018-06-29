@@ -84,6 +84,7 @@ order by S.AVG_Rating ASC
 
 -- 列出每个genre下观影用户数量超过一定阈值且平均用户评分排在最高（最低）前十的电影
 -- 这个真的比较慢。。
+/*
 select *
 from 
 	(select distinct dbo.movieId_genre.genre from dbo.movieId_genre) as GENRES
@@ -105,3 +106,7 @@ cross apply
 	and G.genre = GENRES.genre
 	and  dbo.Audience_Number(R.movieId)>20
 	order by dbo.AVG_Rating(R.movieId) ASC) as S
+*/
+
+-- 在用户评分过的电影中，有些是打过标签的，有些则没有，比较一下用户在这两类电影评分上的不同  
+-- 实现方式：选出两类电影，求这两类电影的平均分
