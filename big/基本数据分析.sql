@@ -46,25 +46,6 @@ return @num
 end
 */
 
-select mo_id, user_numbers
-from   (SELECT tag_numbers+rating_numbers as user_numbers,R.rating_id as mo_id
-	   from
-		(
-		select count(movieId)as tag_numbers,movieId as tag_id
-		from tags 
-		group by movieId)
-		T
-		full outer join
-		(select count(movieId)as rating_numbers,movieId as rating_id
-		from ratings
-		group by movieId)
-		R
-		ON T.tag_id=R.rating_id
-	  WHERE tag_numbers IS NOT NULL
-	  AND   rating_numbers IS NOT NULL)as watching
-where user_numbers>200
-order by mo_id
-
 /*	给定movieId，返回平均用户评分
 */
 
@@ -86,8 +67,6 @@ go
 */
 -- 列出观影用户数量超过一定阈值（自定）且平均用户评分排在最高（最低）前十的电影
 
-
-
 /*
 go
 select top 10 *
@@ -98,15 +77,30 @@ from
 	) as S
 order by S.AVG_Rating DESC 
 */
-/*
-select top 10 *
-from 
-	(select T.movieId , T.title , dbo.AVG_Rating(T.movieId) as AVG_Rating 
-	 from dbo.movie_title_pub_date T
-	 where dbo.Audience_Number(T.movieId) > 0.05 * (select count(distinct userId) from dbo.newratings)
-	) as S
-order by S.AVG_Rating ASC
-*/
+select top 10 movieId, AVG(rating) as AVG_Rating, Audience_Number
+from newratings, 
+	(select movieId, Audience_Number
+		from (select Tag_Number+Rating_Number as Audience_Number, T.movieId as movieId
+				from
+				(
+					select count(movieId) as Tag_Number, movieId
+					from newtags
+					group by movieId
+				)  T 
+				full outer join 
+				(
+					select count(movieId) as Rating_Number, movieId
+					from newratings
+					group by movieId
+				)  R
+				on T.movieId = R.movieId
+				where Tag_Number  is not NULL and  Rating_Number is not NULL
+			) as Audience
+		where Audience_Number > 300 
+	) as MovieHaveMoreThan300
+where MovieHaveMoreThan300.movieId = newratings.movieId
+group by movieId, Audience_Number
+order by AVG(rating) desc
 
 -- 列出每个genre下观影用户数量超过一定阈值且平均用户评分排在最高（最低）前十的电影
 -- 这个真的比较慢。。
