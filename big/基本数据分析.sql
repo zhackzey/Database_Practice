@@ -77,7 +77,7 @@ from
 	) as S
 order by S.AVG_Rating DESC 
 */
-select top 10 movieId, AVG(rating) as AVG_Rating, Audience_Number
+select top 10 newratings.movieId, AVG(rating) as AVG_Rating, Audience_Number
 from newratings, 
 	(select movieId, Audience_Number
 		from (select Tag_Number+Rating_Number as Audience_Number, T.movieId as movieId
@@ -99,7 +99,7 @@ from newratings,
 		where Audience_Number > 300 
 	) as MovieHaveMoreThan300
 where MovieHaveMoreThan300.movieId = newratings.movieId
-group by movieId, Audience_Number
+group by newratings.movieId, Audience_Number
 order by AVG(rating) desc
 
 -- 列出每个genre下观影用户数量超过一定阈值且平均用户评分排在最高（最低）前十的电影
@@ -131,6 +131,7 @@ cross apply
 
 -- 在用户评分过的电影中，有些是打过标签的，有些则没有，比较一下用户在这两类电影评分上的不同  
 -- 实现方式：选出两类电影，求这两类电影的平均分
+/*
 select sum(rating)/count(*) as "没有打过标签的平均分"
 from dbo.newratings
 where not EXISTS
@@ -148,4 +149,5 @@ where  EXISTS
 		from dbo.newtags
 		where dbo.newtags.movieId = dbo.newratings.movieId
 	)
+	*/
 -- 可以看出打过标签的平均分比较高

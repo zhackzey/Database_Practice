@@ -14,7 +14,7 @@ select movieId, substring(title, 0, len(title) - 5) as title, substring(title, P
 into movie_title_pub_date from Movie
 where len(title) > 5;
 
-/*
+
 update Movie set genres = genres +'|';
 with movieId_genres as (
   select
@@ -36,5 +36,3 @@ with movieId_genres as (
 
 select movieId, substring(genres, sta - lens, lens) as genre into movieId_genre  from movieId_genres
 where sta != 0 order by movieId ;
-
-*/
