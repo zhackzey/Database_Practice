@@ -45,48 +45,24 @@ group by newratings.movieId, Audience_Number
 order by AVG(rating) desc
 
 -- 列出每个genre下观影用户数量超过一定阈值(300)且平均用户评分排在最高（最低）前十的电影
--- 这个真的比较慢。。
-/*
+select distinct  movieId_genre.genre, newratings.movieId, AVG(rating) as average_rating
+into temp
+  from movieId_genre, newratings
+  where movieId_genre.movieId = newratings.movieId
+  and newratings.movieId in (
+          select newratings.movieId
+          from newratings
+          group by newratings.movieId having count(newratings.movieId) > 300
+        )
+  group by movieId_genre.genre, newratings.movieId
+
 select *
-from 
-	(select distinct dbo.movieId_genre.genre from dbo.movieId_genre) as GENRES
-cross apply
-	(select top 10 R.movieId,R.title, dbo.AVG_Rating(R.movieId) as AVG_Rating
-	from dbo.movie_title_pub_date R, dbo.movieId_genre G
-	where R.movieId = G.movieId 
-	and G.genre = GENRES.genre
-	and  dbo.Audience_Number(R.movieId)>20
-	order by dbo.AVG_Rating(R.movieId) DESC) as S
-	*/
-select movieId_genre.genre, newratings.movieId, AVG(rating) as AVG_Rating
-from newratings ,movieId_genre
-where newratings.movieId in
-	(select top 10 newratings.movieId
-	from newratings, movieId_genre
-	where newratings.movieId = movieId_genre.movieId
-	and newratings.movieId in	(select movieId
-								from (select Tag_Number+Rating_Number as Audience_Number, T.movieId as movieId
-									 from
-									(
-									select count(movieId) as Tag_Number, movieId
-									from newtags
-									group by movieId
-									)  T 
-									full outer join 
-									(
-									select count(movieId) as Rating_Number, movieId
-									from newratings
-									group by movieId
-									)  R
-									on T.movieId = R.movieId
-									where Tag_Number  is not NULL and  Rating_Number is not NULL
-									) as Audience
-								where Audience_Number > 300)
-	group by movieId_genre.genre, newratings.movieId
-	order by AVG(rating) DESC
-	)
-group by movieId_genre.genre, newratings.movieId
-order by movieId_genre.genre
+from temp a
+where 10 > (
+  select count(*)
+  from temp b where b.genre = a.genre and b.average_rating > a.average_rating
+)
+order by a.genre, a.average_rating
 -- 在用户评分过的电影中，有些是打过标签的，有些则没有，比较一下用户在这两类电影评分上的不同  
 -- 实现方式：选出两类电影，求这两类电影的平均分
 
