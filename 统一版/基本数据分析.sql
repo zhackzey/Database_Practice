@@ -45,8 +45,10 @@ group by newratings.movieId, Audience_Number
 order by AVG(rating) desc
 
 -- 列出每个genre下观影用户数量超过一定阈值(300)且平均用户评分排在最高（最低）前十的电影
-select distinct  movieId_genre.genre, newratings.movieId, AVG(rating) as average_rating
-into temp
+
+
+select *
+from (select distinct  movieId_genre.genre, newratings.movieId, AVG(rating) as average_rating
   from movieId_genre, newratings
   where movieId_genre.movieId = newratings.movieId
   and newratings.movieId in (
@@ -55,12 +57,19 @@ into temp
           group by newratings.movieId having count(newratings.movieId) > 300
         )
   group by movieId_genre.genre, newratings.movieId
-
-select *
-from temp a
+)as a
 where 10 > (
   select count(*)
-  from temp b where b.genre = a.genre and b.average_rating > a.average_rating
+  from (select distinct  movieId_genre.genre, newratings.movieId, AVG(rating) as average_rating
+  from movieId_genre, newratings
+  where movieId_genre.movieId = newratings.movieId
+  and newratings.movieId in (
+          select newratings.movieId
+          from newratings
+          group by newratings.movieId having count(newratings.movieId) > 300
+        )
+  group by movieId_genre.genre, newratings.movieId
+) b where b.genre = a.genre and b.average_rating > a.average_rating
 )
 order by a.genre, a.average_rating
 -- 在用户评分过的电影中，有些是打过标签的，有些则没有，比较一下用户在这两类电影评分上的不同  
